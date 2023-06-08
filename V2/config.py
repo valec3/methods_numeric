@@ -28,9 +28,25 @@ class Config:
                     "map": {
                         "background": [("selected", "lightblue"),("active", "white")],
                         "expand": [("selected", [1, 1, 1, 0])] ,
+                    },
                 },
-                    
+                "Treeview.Heading":{
+                    "configure": {
+                        "background":"lightblue",
+                        "font" : ('calibri', 13, 'bold'),
+                        "foreground": "black",
+                        
+                        
+                    }
                 },
+                "Treeview":{
+                    "configure": {
+                        "background":"lightgray",
+                        "foreground": "black",
+                        "font": ("calibri",11,"bold"),
+                        "fieldbackground ":"black"
+                    }
+                }
         }
         self.styles = ttk.Style()
         #Si existe el estilo da error y lo modifica o actualiza.

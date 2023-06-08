@@ -1,10 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import font
-import customtkinter
-from PIL import Image, ImageTk
-import tkinter.constants 
-
+from tkinter.constants import END
 from config import Config
 
 class MyApp:
@@ -15,63 +12,95 @@ class MyApp:
         self.window.title("Metodos numericos")
         self.frame_main = tk.Frame(self.window)
         
-        # Configurar la fuente global
-        self.font_style = font.Font(weight="bold",family="Arial")
+        self.setup_fonts()
+        self.setup_widgets()
+        self.window.resizable(1, 1)
+        self.window.iconbitmap("icono.ico")
+        
+        self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
+        self.frame_main.pack(fill="both", padx=10, pady=10)
+        
+    def setup_fonts(self):
+        self.font_style = font.Font(weight="bold", family="Arial")
         self.window.option_add("*Font", self.font_style)
         
-        # Crear un widget Label con la imagen de fondo
-        # background_label = tk.Label(self.window, image=self.config.bg_image)
-        # background_label.place(x=0, y=0, relwidth=1, relheight=1)
-        # background_label.lower()  # Mover el fondo al fondo de la pila de widgets
-        
-        # Aplicar los estilos al notebook
+    def setup_widgets(self):
         self.notebook = ttk.Notebook(self.frame_main)
+
+        self.create_tab(self.notebook, "Metodo de Biseccion","           Biseccion        ")
+        self.create_tab(self.notebook, "Metodo de Newton-Raphson","  Newton-Raphson   ")
+        self.create_tab(self.notebook, "Metodo de Punto fijo","         Punto Fijo         ")
+        self.create_tab(self.notebook, "Metodo de Euler","               Euler            ")
+        self.create_tab(self.notebook, "Metodo de la secante","           Secante           ")
+    def create_tab(self, notebook, content,text_tab):
+        tab = tk.Frame(notebook)
+        label = tk.Label(tab, text=content)
+        label.grid(row=0, column=0,columnspan=5,padx=30,pady=20)
+        lbl_func = tk.Label(tab,text="  Ingrese su funcion:   ")
+        lbl_func.grid(row=5,column=0,columnspan=2,pady=10)
+        ety_func = tk.Entry(tab)
+        ety_func.grid(row=5,column=2)
+        lbl_miss = tk.Label(tab,text="  Ingrese el error:   ")
+        lbl_miss.grid(row=6,column=0,columnspan=2,pady=10)
+        ety_miss = tk.Entry(tab)
+        ety_miss.grid(row=6,column=2)
+        btn_calc = tk.Button(tab,text="Calcular",width=10,command=lambda :self.calculate(ety_func, ety_miss))
+        btn_calc.grid(row=10,column=2,pady=20)
+        notebook.add(tab, text=text_tab)
+        # Definir los campos de la tabla
+        fields = ["ITERACION", "X", "F (x)", "ERROR"]
+
+        # Definir los datos de ejemplo
+        data = [
+            (1, 0.5, 0.25, 0.1),
+            (2, 0.7, 0.49, 0.05),
+            (3, 0.9, 0.81, 0.02),
+            (1, 0.5, 0.25, 0.1),
+            (2, 0.7, 0.49, 0.05),
+            (3, 0.9, 0.81, 0.02),
+            (1, 0.5, 0.25, 0.1),
+            (2, 0.7, 0.49, 0.05),
+            (3, 0.9, 0.81, 0.02),
+            (1, 0.5, 0.25, 0.1),
+            (2, 0.7, 0.49, 0.05),
+            (3, 0.9, 0.81, 0.02),
+            (1, 0.5, 0.25, 0.1),
+            (2, 0.7, 0.49, 0.05),
+            (3, 0.9, 0.81, 0.02),
+            (1, 0.5, 0.25, 0.1),
+            (2, 0.7, 0.49, 0.05),
+            (3, 0.9, 0.81, 0.02)
+        ]
+        frame_tabla = tk.Frame(tab)
+        frame_tabla.grid(row=15)
+        self.create_table(tab, fields, data)
+    def create_table(self,root, fields, data):
+        # Crear el árbol (Treeview)
+        tree = ttk.Treeview(root, columns=fields, show="headings")
+        # Definir configuraciones de estilo
+        tree.tag_configure("oddrow", background="lightblue")
+        tree.tag_configure("evenrow", background="white", foreground="blue")
+        # Configurar las columnas
+        for field in fields:
+            tree.heading(field, text=field)
+            tree.column(field, width=100)
         
-        # Crear las pestañas
-        self.tab1 = tk.Frame(self.notebook)
-        self.tab2 = tk.Frame(self.notebook)
-        self.tab3 = tk.Frame(self.notebook)
-        self.tab4 = tk.Frame(self.notebook)
-        self.tab5 = tk.Frame(self.notebook)
+        # Insertar los datos en la tabla
+        for row in data:
+            tree.insert("", "end", values=row)
         
-        # Agregar las pestañas al notebook
-        self.notebook.add(self.tab1, text="           Biseccion        ")
-        self.notebook.add(self.tab2, text="  Newton-Raphson   ")
-        self.notebook.add(self.tab3, text="         Punto Fijo         ")
-        self.notebook.add(self.tab4, text="               Euler            ")
-        self.notebook.add(self.tab5, text="           Secante           ")
-        
-        # Agregar contenido a cada pestaña
-        label1 = tk.Label(self.tab1, text="Content for Tab 1")
-        label1.pack(pady=200)
-        
-        label2 = tk.Label(self.tab2, text="Content for Tab 2")
-        label2.pack(pady=200)
-        
-        label3 = tk.Label(self.tab3, text="Content for Tab 3")
-        label3.pack(pady=200)
-        
-        label4 = tk.Label(self.tab4, text="Content for Tab 4")
-        label4.pack(pady=200)
-        
-        # Mostrar el notebook
-        self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
-        button = customtkinter.CTkButton(self.window, text="CTkButton", command=print("hola"))
-        button.invoke()
-        # Mostrar frame1 al inicio
-        self.frame_main.pack(fill="both",padx=10, pady=10)
-        
-    def show_frame(self, frame):
-        # Ocultar todos los frames
-        # self.frame_biseccion.pack_forget()
-        # self.frame_newton.pack_forget()
-        
-        # Mostrar el frame especificado
-        # frame.pack()
-        pass
+        # Mostrar la tabla
+        tree.grid(row=15,column=2,columnspan=5,pady=10)
+    def calculate(self, entry_func, entry_miss):
+        # Aquí puedes realizar los cálculos necesarios utilizando los valores de las entradas
+        print(eval(entry_func.get()))
+        # Vaciar el contenido de las entradas
+        entry_func.delete(0, END)
+        entry_miss.delete(0, END)
+    def mi_funcion(self,x,expresion):
+        return eval(expresion)
     def run(self):
         self.window.mainloop()
 
 APLICACION = MyApp()
 APLICACION.run()
-        
