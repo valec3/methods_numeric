@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 
 class Config:
     def __init__(self) -> None:
-        self.size="1000x800"
+        self.size="1200x800"
         # Cargar la imagen de fondo
         self.image = Image.open("background.png")
         self.bg_image = ImageTk.PhotoImage(self.image)
