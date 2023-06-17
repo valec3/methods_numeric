@@ -31,11 +31,12 @@ class MyApp:
     def setup_widgets(self):
         self.notebook = ttk.Notebook(self.frame_main,height=700)
 
-        self.create_tab(self.notebook,"MB", "Metodo de Biseccion","           Biseccion        ","  Intervalo x_i","  Intervalo x_u")
+        self.create_tab(self.notebook,"MB", "Metodo de Biseccion","           Biseccion        ","  x_i","  x_u")
         self.create_tab(self.notebook,"MN", "Metodo de Newton-Raphson","  Newton-Raphson   ","Punto inicial")
-        self.create_tab(self.notebook,"MP", "Metodo de Punto fijo","         Punto Fijo         ")
+        self.create_tab(self.notebook,"MP", "Metodo de Punto fijo","         Punto Fijo         ","x_0")
         self.create_tab(self.notebook,"ME", "Metodo de Euler","               Euler            ","x_0","y_0","h")
-        self.create_tab(self.notebook,"MS", "Metodo de la secante","           Secante           ")
+        self.create_tab(self.notebook,"MS", "Metodo de la secante","           Secante           ","x_0","x_1")
+        self.create_tab(self.notebook,"MS", "Metodo de la falsa Posicion","         Falsa posicion           ","x_0","x_1")
     def create_tab(self, notebook, ID_method,content,text_tab,label_txt1=None,label_txt2=None,label_txt3=None):
         self.metodo_current=ID_method
         tab = tk.Frame(notebook)
@@ -72,9 +73,7 @@ class MyApp:
             ety_ext_2.grid(row=21,column=2,padx=10)
             
             btn_calc = tk.Button(tab,text="Calcular",width=10,command=lambda :self.ejecutar_metodo(tab,ety_func, ety_miss,ety_steps,ety_ext_0,ety_ext_1,ety_ext_2))
-            btn_calc.grid(row=30,column=2,pady=20)
-            btn_calc = tk.Button(tab,text="Reset",width=10,command=lambda :self.reset_results(ety_func, ety_miss,ety_steps,ety_ext_0,ety_ext_1,ety_ext_2))
-            btn_calc.grid(row=30,column=3,pady=20)
+            btn_rest = tk.Button(tab,text="Reset",width=10,command=lambda :self.reset_results(ety_func, ety_miss,ety_steps,ety_ext_0,ety_ext_1,ety_ext_2))
         elif (label_txt1 is not None) and (label_txt2 is not None):
             label_ext_0 = tk.Label(tab, text=label_txt1)
             label_ext_0.grid(row=20, column=1,pady=10)
@@ -87,9 +86,7 @@ class MyApp:
             ety_ext_1.grid(row=20,column=4,padx=10)
             
             btn_calc = tk.Button(tab,text="Calcular",width=10,command=lambda :self.ejecutar_metodo(tab,ety_func, ety_miss,ety_steps,ety_ext_0,ety_ext_1))
-            btn_calc.grid(row=30,column=2,pady=20)
-            btn_calc = tk.Button(tab,text="Reset",width=10,command=lambda :self.reset_results(ety_func, ety_miss,ety_steps,ety_ext_0,ety_ext_1))
-            btn_calc.grid(row=30,column=3,pady=20)
+            btn_rest = tk.Button(tab,text="Reset",width=10,command=lambda :self.reset_results(ety_func, ety_miss,ety_steps,ety_ext_0,ety_ext_1))
         elif label_txt1 is not None:
             label_ext_0 = tk.Label(tab, text=label_txt1)
             label_ext_0.grid(row=20, column=1,pady=10)
@@ -97,14 +94,12 @@ class MyApp:
             ety_ext_0.grid(row=20,column=2,padx=10)
             
             btn_calc = tk.Button(tab,text="Calcular",width=10,command=lambda :self.ejecutar_metodo(tab,ety_func, ety_miss,ety_steps,ety_ext_0))
-            btn_calc.grid(row=30,column=2,pady=20)
-            btn_calc = tk.Button(tab,text="Reset",width=10,command=lambda :self.reset_results(ety_func, ety_miss,ety_steps,ety_ext_0))
-            btn_calc.grid(row=30,column=3,pady=20)
+            btn_rest = tk.Button(tab,text="Reset",width=10,command=lambda :self.reset_results(ety_func, ety_miss,ety_steps,ety_ext_0))
         else:
             btn_calc = tk.Button(tab,text="Calcular",width=10,command=lambda :self.ejecutar_metodo(tab,ety_func, ety_miss,ety_steps))
-            btn_calc.grid(row=30,column=2,pady=20)
-            btn_calc = tk.Button(tab,text="Reset",width=10,command=lambda :self.reset_results(ety_func, ety_miss,ety_steps))
-            btn_calc.grid(row=30,column=3,pady=20)
+            btn_rest = tk.Button(tab,text="Reset",width=10,command=lambda :self.reset_results(ety_func, ety_miss,ety_steps))
+        btn_calc.grid(row=30,column=2,pady=20)
+        btn_rest.grid(row=30,column=3,pady=20)
         notebook.add(tab, text=text_tab)
         # Definir los campos de la tabla
         self.fields = ["ITERACION", "X", "F (x)", "ERROR"]
@@ -153,22 +148,30 @@ class MyApp:
     def calculate(self, entry_func, entry_miss,entry_step,ety_x_i=None,ety_x_u=None,ety_h=None):
         # Aquí puedes realizar los cálculos necesarios utilizando los valores de las entradas
         func_txt = entry_func.get()  if entry_func.get() != '' else 0
-        tol = float(entry_miss.get()) if entry_miss.get() != '' else 0
-        step = int(entry_step.get()) if entry_step.get() != '' else 0
+        tol = float(entry_miss.get()) if entry_miss.get() != '' else 0.0004
+        step = int(entry_step.get()) if entry_step.get() != '' else 100
         x_i = float(ety_x_i.get()) if ety_x_i is not None else 0
         x_u = float(ety_x_u.get()) if ety_x_u is not None else 0
         h = float(ety_h.get()) if ety_h is not None else 0
         
         if self.notebook.index("current") == 0:
-            self.data = biseccion(func_txt,x_i,x_u,tol)
+            self.data = biseccion(func_txt,x_i,x_u,tol,step)
             self.fields = ["ITERACION", "X_i","X_u","X", "ERROR"]
         elif self.notebook.index("current") == 1:
             self.data = newton_raphson(func_txt, x_i, tol, step)
             self.fields = ["ITERACION", "X","ERROR","f(x)"]
-        elif self.notebook.index("current"):
+        elif self.notebook.index("current") == 2:
+            self.data = punto_fijo(func_txt, x_i,tol,step)
+            self.fields = ["ITERACION","X","ERROR","f(x)","x new"]
+        elif self.notebook.index("current") == 3:
             self.data = euler_method(func_txt, x_i,x_u,h,step)
             self.fields = ["ITERACION","X","Y","f(x,y)","y_{n+1}"]
-            
+        elif self.notebook.index("current") == 4:
+            self.data = secante_method(func_txt, x_i,x_u,tol,step)
+            self.fields = ["ITERACION","X","f (x)","ERROR"]
+        elif self.notebook.index("current") == 5:
+            self.data = falsa_posicion(func_txt, x_i,x_u,tol,step)
+            self.fields = ["ITERACION","X","f (x)","ERROR"]
         else:
             
         # Definir los campos de la tabla
@@ -180,9 +183,6 @@ class MyApp:
                 (3, 0.9, 0.81, 0.02),
                 (1, 0.5, 0.25, 0.1),
             ]
-        # Vaciar el contenido de las entradas
-        # entry_func.delete(0, END)
-        # entry_miss.delete(0, END)
     def mi_funcion(self,x,expresion):
         # Definir la variable simbólica
         x_sym = sp.Symbol('x')
@@ -239,11 +239,11 @@ class MyApp:
             ax.set_xlabel('x')
             ax.set_ylabel('y')
             ax.set_zlabel('f(x, y)')
-            ax.set_title('Gráfico de f(x, y) = x^2 + y')
+            ax.set_title(expresion)
 
         # Mostrar el gráfico
         plt.show()
-            
+
     def run(self):
         
         self.window.mainloop()

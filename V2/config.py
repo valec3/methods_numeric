@@ -1,13 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-
+import tkinter.messagebox as messagebox
 class Config:
     def __init__(self) -> None:
         self.size="1200x800"
         # Cargar la imagen de fondo
-        self.image = Image.open("background.png")
-        self.bg_image = ImageTk.PhotoImage(self.image)
+        # self.image = Image.open("background.png")
+        # self.bg_image = ImageTk.PhotoImage(self.image)
         
         self.styles_config = {         
                 "TNotebook": {
@@ -56,3 +56,6 @@ class Config:
             #Actualiza el fondo que tiene
             self.styles.theme_settings( "MyStyle", settings= self.styles_config)
         self.styles.theme_use("MyStyle")
+        
+    def show_error(self, title, message):
+        messagebox.showerror(title, message)
